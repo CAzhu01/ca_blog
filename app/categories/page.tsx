@@ -1,25 +1,28 @@
-import { createServerClient } from "@/lib/supabase/server"
-import type { Category } from "@/types"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/server";
+import type { Category } from "@/types";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
-export const revalidate = 60 // 每分钟重新验证页面
+export const revalidate = 60; // 每分钟重新验证页面
 
 async function getCategories() {
-  const supabase = createServerClient()
+  const supabase = await createClient();
 
-  const { data, error } = await supabase.from("categories").select("*").order("name", { ascending: true })
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .order("name", { ascending: true });
 
   if (error) {
-    console.error("Error fetching categories:", error)
-    return []
+    console.error("Error fetching categories:", error);
+    return [];
   }
 
-  return data as Category[]
+  return data as Category[];
 }
 
 export default async function CategoriesPage() {
-  const categories = await getCategories()
+  const categories = await getCategories();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -35,7 +38,9 @@ export default async function CategoriesPage() {
           <Link key={category.id} href={`/categories/${category.slug}`}>
             <div className="border rounded-lg p-6 hover:border-primary transition-colors">
               <h2 className="text-xl font-bold mb-2">{category.name}</h2>
-              {category.description && <p className="text-muted-foreground">{category.description}</p>}
+              {category.description && (
+                <p className="text-muted-foreground">{category.description}</p>
+              )}
             </div>
           </Link>
         ))}
@@ -50,5 +55,5 @@ export default async function CategoriesPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

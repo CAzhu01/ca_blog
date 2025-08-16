@@ -1,45 +1,51 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
-import { useAuth } from "@/components/auth-provider"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
-import { getSupabaseClient } from "@/lib/supabase/client"
-import { Checkbox } from "@/components/ui/checkbox"
-import { RichTextEditor } from "@/components/rich-text-editor"
-import type { Post, Category } from "@/types"
-import { notFound } from "next/navigation"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { useAuth } from "@/components/auth-provider";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { getSupabaseClient } from "@/lib/supabase/client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RichTextEditor } from "@/components/rich-text-editor";
+import type { Post, Category } from "@/types";
+import { notFound } from "next/navigation";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function EditBlogPost({ params }: { params: { id: string } }) {
-  const [post, setPost] = useState<Post | null>(null)
-  const [title, setTitle] = useState("")
-  const [content, setContent] = useState("")
-  const [excerpt, setExcerpt] = useState("")
-  const [published, setPublished] = useState(false)
-  const [visibility, setVisibility] = useState<"private" | "public">("private")
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [categories, setCategories] = useState<Category[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [post, setPost] = useState<Post | null>(null);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [published, setPublished] = useState(false);
+  const [visibility, setVisibility] = useState<"private" | "public">("private");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  const { user } = useAuth()
-  const router = useRouter()
-  const { toast } = useToast()
-  const supabase = getSupabaseClient()
+  const { user } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+  const supabase = getSupabaseClient();
 
   useEffect(() => {
     if (!user) {
-      router.push("/login")
-      return
+      router.push("/login");
+      return;
     }
 
     const fetchPost = async () => {
@@ -49,10 +55,10 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
           .from("posts")
           .select("*")
           .eq("id", params.id)
-          .single()
+          .single();
 
         if (postError) {
-          throw postError
+          throw postError;
         }
 
         if (postData.author_id !== user.id) {
@@ -60,61 +66,64 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
             title: "无权限",
             description: "您没有权限编辑此文章",
             variant: "destructive",
-          })
-          router.push("/dashboard")
-          return
+          });
+          router.push("/dashboard");
+          return;
         }
 
-        setPost(postData as Post)
-        setTitle(postData.title)
-        setContent(postData.content)
-        setExcerpt(postData.excerpt || "")
-        setPublished(postData.published)
-        setVisibility(postData.is_public ? "public" : "private")
+        setPost(postData as any);
+        setTitle(postData.title as string);
+        setContent(postData.content as string);
+        setExcerpt(postData.excerpt as string);
+        setPublished(postData.published as boolean);
+        setVisibility(postData.is_public ? "public" : "private");
 
         // 获取分类
         const { data: categoriesData, error: categoriesError } = await supabase
           .from("categories")
           .select("*")
-          .order("name", { ascending: true })
+          .order("name", { ascending: true });
 
         if (categoriesError) {
-          throw categoriesError
+          throw categoriesError;
         }
 
-        setCategories(categoriesData as Category[])
+        setCategories(categoriesData as any[]);
 
         // 获取文章的分类
-        const { data: postCategoriesData, error: postCategoriesError } = await supabase
-          .from("post_categories")
-          .select("category_id")
-          .eq("post_id", params.id)
+        const { data: postCategoriesData, error: postCategoriesError } =
+          await supabase
+            .from("post_categories")
+            .select("category_id")
+            .eq("post_id", params.id);
 
         if (postCategoriesError) {
-          throw postCategoriesError
+          throw postCategoriesError;
         }
 
-        setSelectedCategories(postCategoriesData.map((pc) => pc.category_id))
+        setSelectedCategories(
+          postCategoriesData.map((pc) => pc.category_id as string)
+        );
       } catch (error: any) {
         toast({
           title: "获取文章失败",
           description: error.message || "发生了未知错误，请稍后再试",
           variant: "destructive",
-        })
-        router.push("/dashboard")
+        });
+        router.push("/dashboard");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchPost()
-  }, [params.id, user, router, toast])
+    fetchPost();
+  }, [params.id, user, router, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!user || !post) {
-      return
+      return;
     }
 
     if (!title.trim() || !content.trim()) {
@@ -122,11 +131,11 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
         title: "表单不完整",
         description: "请填写标题和内容",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // 更新文章
@@ -139,17 +148,20 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
           published,
           is_public: visibility === "public",
         })
-        .eq("id", post.id)
+        .eq("id", post.id);
 
       if (updateError) {
-        throw updateError
+        throw updateError;
       }
 
       // 删除现有的分类关联
-      const { error: deleteError } = await supabase.from("post_categories").delete().eq("post_id", post.id)
+      const { error: deleteError } = await supabase
+        .from("post_categories")
+        .delete()
+        .eq("post_id", post.id);
 
       if (deleteError) {
-        throw deleteError
+        throw deleteError;
       }
 
       // 如果选择了分类，创建新的分类关联
@@ -157,46 +169,48 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
         const categoryRelations = selectedCategories.map((categoryId) => ({
           post_id: post.id,
           category_id: categoryId,
-        }))
+        }));
 
-        const { error: insertError } = await supabase.from("post_categories").insert(categoryRelations)
+        const { error: insertError } = await supabase
+          .from("post_categories")
+          .insert(categoryRelations);
 
         if (insertError) {
-          throw insertError
+          throw insertError;
         }
       }
 
       toast({
         title: "文章已更新",
         description: "您的文章已成功更新",
-      })
+      });
 
       // 重定向到文章页面或仪表板
       if (published) {
-        router.push(`/blog/${post.slug}`)
+        router.push(`/blog/${post.slug}`);
       } else {
-        router.push("/dashboard")
+        router.push("/dashboard");
       }
     } catch (error: any) {
       toast({
         title: "更新失败",
         description: error.message || "发生了未知错误，请稍后再试",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategories((prev) => {
       if (prev.includes(categoryId)) {
-        return prev.filter((id) => id !== categoryId)
+        return prev.filter((id) => id !== categoryId);
       } else {
-        return [...prev, categoryId]
+        return [...prev, categoryId];
       }
-    })
-  }
+    });
+  };
 
   if (isLoading) {
     return (
@@ -205,11 +219,11 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
           <p>加载中...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!post) {
-    return notFound()
+    return notFound();
   }
 
   return (
@@ -259,14 +273,22 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
               {categories.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((category) => (
-                    <div key={category.id} className="flex items-center space-x-2">
+                    <div
+                      key={category.id}
+                      className="flex items-center space-x-2"
+                    >
                       <Checkbox
                         id={`category-${category.id}`}
                         checked={selectedCategories.includes(category.id)}
-                        onCheckedChange={() => handleCategoryChange(category.id)}
+                        onCheckedChange={() =>
+                          handleCategoryChange(category.id)
+                        }
                         disabled={isSubmitting}
                       />
-                      <Label htmlFor={`category-${category.id}`} className="cursor-pointer">
+                      <Label
+                        htmlFor={`category-${category.id}`}
+                        className="cursor-pointer"
+                      >
                         {category.name}
                       </Label>
                     </div>
@@ -289,7 +311,12 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
 
             <div className="space-y-2">
               <Label>可见性</Label>
-              <RadioGroup value={visibility} onValueChange={(value) => setVisibility(value as "private" | "public")}>
+              <RadioGroup
+                value={visibility}
+                onValueChange={(value) =>
+                  setVisibility(value as "private" | "public")
+                }
+              >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="private" id="private" />
                   <Label htmlFor="private">私有 - 仅登录用户可见</Label>
@@ -314,5 +341,5 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
         </form>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,17 +1,30 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
-import { useAuth } from "@/components/auth-provider"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
-import { getSupabaseClient } from "@/lib/supabase/client"
-import type { Post } from "@/types"
-import { formatDate } from "@/lib/utils"
-import { Edit, Trash2, Eye, EyeOff, Globe, Lock } from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { useAuth } from "@/components/auth-provider";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { getSupabaseClient } from "@/lib/supabase/client";
+import type { Post } from "@/types";
+import { formatDate } from "@/lib/utils";
+import { Edit, Trash2, Eye, EyeOff, Globe, Lock } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,120 +35,138 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 export default function Dashboard() {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const { user } = useAuth()
-  const router = useRouter()
-  const { toast } = useToast()
-  const supabase = getSupabaseClient()
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+  const supabase = getSupabaseClient();
 
   useEffect(() => {
     if (!user) {
-      router.push("/login")
-      return
+      router.push("/login");
+      return;
     }
 
     const fetchPosts = async () => {
       try {
-        console.log("Fetching posts for user:", user.id)
+        console.log("Fetching posts for user:", user.id);
         const { data, error } = await supabase
           .from("posts")
           .select("*")
           .eq("author_id", user.id)
-          .order("created_at", { ascending: false })
+          .order("created_at", { ascending: false });
 
         if (error) {
-          throw error
+          throw error;
         }
 
-        console.log("Fetched posts:", data)
-        setPosts(data as Post[])
+        console.log("Fetched posts:", data);
+        setPosts(data as any[]);
       } catch (error: any) {
-        console.error("Error fetching posts:", error)
+        console.error("Error fetching posts:", error);
         toast({
           title: "获取文章失败",
           description: error.message || "发生了未知错误，请稍后再试",
           variant: "destructive",
-        })
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchPosts()
-  }, [user, router, toast])
+    fetchPosts();
+  }, [user, router, toast]);
 
   const togglePublishStatus = async (post: Post) => {
     try {
-      const { error } = await supabase.from("posts").update({ published: !post.published }).eq("id", post.id)
+      const { error } = await supabase
+        .from("posts")
+        .update({ published: !post.published })
+        .eq("id", post.id);
 
       if (error) {
-        throw error
+        throw error;
       }
 
-      setPosts(posts.map((p) => (p.id === post.id ? { ...p, published: !p.published } : p)))
+      setPosts(
+        posts.map((p) =>
+          p.id === post.id ? { ...p, published: !p.published } : p
+        )
+      );
 
       toast({
         title: post.published ? "文章已设为草稿" : "文章已发布",
-        description: post.published ? "文章已从公开列表中移除" : "文章现在可以被公开访问",
-      })
+        description: post.published
+          ? "文章已从公开列表中移除"
+          : "文章现在可以被公开访问",
+      });
     } catch (error: any) {
       toast({
         title: "操作失败",
         description: error.message || "发生了未知错误，请稍后再试",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const toggleVisibilityStatus = async (post: Post) => {
     try {
-      const { error } = await supabase.from("posts").update({ is_public: !post.is_public }).eq("id", post.id)
+      const { error } = await supabase
+        .from("posts")
+        .update({ is_public: !post.is_public })
+        .eq("id", post.id);
 
       if (error) {
-        throw error
+        throw error;
       }
 
-      setPosts(posts.map((p) => (p.id === post.id ? { ...p, is_public: !p.is_public } : p)))
+      setPosts(
+        posts.map((p) =>
+          p.id === post.id ? { ...p, is_public: !p.is_public } : p
+        )
+      );
 
       toast({
         title: post.is_public ? "文章已设为私有" : "文章已设为公开",
-        description: post.is_public ? "文章现在只有登录用户可见" : "文章现在所有人可见",
-      })
+        description: post.is_public
+          ? "文章现在只有登录用户可见"
+          : "文章现在所有人可见",
+      });
     } catch (error: any) {
       toast({
         title: "操作失败",
         description: error.message || "发生了未知错误，请稍后再试",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const deletePost = async (postId: string) => {
     try {
-      const { error } = await supabase.from("posts").delete().eq("id", postId)
+      const { error } = await supabase.from("posts").delete().eq("id", postId);
 
       if (error) {
-        throw error
+        throw error;
       }
 
-      setPosts(posts.filter((p) => p.id !== postId))
+      setPosts(posts.filter((p) => p.id !== postId));
 
       toast({
         title: "文章已删除",
         description: "文章已成功删除",
-      })
+      });
     } catch (error: any) {
       toast({
         title: "删除失败",
         description: error.message || "发生了未知错误，请稍后再试",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -144,7 +175,7 @@ export default function Dashboard() {
           <p>加载中...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -215,7 +246,11 @@ export default function Dashboard() {
                           onClick={() => togglePublishStatus(post)}
                           title={post.published ? "设为草稿" : "发布"}
                         >
-                          {post.published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {post.published ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </Button>
                         <Button
                           variant="outline"
@@ -223,7 +258,11 @@ export default function Dashboard() {
                           onClick={() => toggleVisibilityStatus(post)}
                           title={post.is_public ? "设为私有" : "设为公开"}
                         >
-                          {post.is_public ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                          {post.is_public ? (
+                            <Globe className="h-4 w-4" />
+                          ) : (
+                            <Lock className="h-4 w-4" />
+                          )}
                         </Button>
                         <Button variant="outline" size="icon" asChild>
                           <Link href={`/blog/edit/${post.id}`}>
@@ -232,14 +271,20 @@ export default function Dashboard() {
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="icon" className="text-red-500">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="text-red-500"
+                            >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>确认删除</AlertDialogTitle>
-                              <AlertDialogDescription>您确定要删除这篇文章吗？此操作无法撤销。</AlertDialogDescription>
+                              <AlertDialogDescription>
+                                您确定要删除这篇文章吗？此操作无法撤销。
+                              </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>取消</AlertDialogCancel>
@@ -262,5 +307,5 @@ export default function Dashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

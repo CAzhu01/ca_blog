@@ -1,25 +1,30 @@
-import type React from "react"
-import { Nav } from "@/components/nav"
-import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/components/auth-provider"
-import "@/app/globals.css"
-import type { Metadata } from "next"
+import type React from "react";
+import { Nav } from "@/components/nav";
+import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/auth-provider";
+import "@/app/globals.css";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "博客系统",
   description: "一个使用 Next.js 和 Tailwind CSS 构建的现代博客系统",
-    generator: 'v0.dev'
-}
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <AuthProvider>
             <div className="flex flex-col min-h-screen">
               <Nav />
@@ -34,5 +39,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }

@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/components/auth-provider"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
+import { useAuth } from "@/components/auth-provider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function DebugPage() {
-  const { user, loading, signOut } = useAuth()
-  const router = useRouter()
+  const { user, loading, signOut } = useAuth();
+  const router = useRouter();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -19,7 +19,9 @@ export default function DebugPage() {
           <div className="space-y-4">
             <div>
               <h3 className="font-medium">加载状态:</h3>
-              <pre className="bg-muted p-2 rounded-md mt-1">{loading ? "加载中..." : "加载完成"}</pre>
+              <pre className="bg-muted p-2 rounded-md mt-1">
+                {loading ? "加载中..." : "加载完成"}
+              </pre>
             </div>
 
             <div>
@@ -43,5 +45,5 @@ export default function DebugPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
