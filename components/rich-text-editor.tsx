@@ -39,6 +39,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getSupabaseClient } from "@/lib/supabase/client";
+import { useAuth } from "@/components/auth-provider";
+import { useToast } from "@/hooks/use-toast";
 
 interface RichTextEditorProps {
   content: string;
@@ -57,6 +60,11 @@ export function RichTextEditor({
   const [imageUrl, setImageUrl] = useState("");
   const [selectedCodeLanguage, setSelectedCodeLanguage] = useState("js");
   const [isClient, setIsClient] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const supabase = getSupabaseClient();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsClient(true);
@@ -81,7 +89,6 @@ export function RichTextEditor({
       }),
     ],
     content,
-    // 为避免 Next.js SSR 环境下的水合不匹配，显式关闭初次同步渲染
     immediatelyRender: false,
     editable: !disabled,
     onUpdate: ({ editor }) => {
@@ -121,6 +128,54 @@ export function RichTextEditor({
     if (imageUrl) {
       editor.chain().focus().setImage({ src: imageUrl }).run();
       setImageUrl("");
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) {
+      return;
+    }
+
+    const file = event.target.files[0];
+    if (!user) {
+      toast({
+        title: "请先登录",
+        description: "您需要登录后才能上传图片。",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const filePath = `public/${user.id}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      if (data.publicUrl) {
+        editor.chain().focus().setImage({ src: data.publicUrl }).run();
+        toast({ title: "图片上传成功" });
+      }
+    } catch (error: any) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "图片上传失败",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      event.target.value = "";
     }
   };
 
@@ -322,15 +377,39 @@ export function RichTextEditor({
           </PopoverTrigger>
           <PopoverContent className="w-80">
             <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium">通过URL添加</p>
               <Input
                 type="url"
                 placeholder="输入图片 URL"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
+                disabled={isUploading}
               />
-              <Button onClick={addImage} type="button">
+              <Button onClick={addImage} type="button" disabled={isUploading}>
                 添加图片
               </Button>
+              <div className="relative my-2">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-popover px-2 text-muted-foreground">
+                    或
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium" htmlFor="image-upload">上传本地图片</label>
+                <Input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
+                  className="text-sm"
+                />
+                {isUploading && <p className="text-sm text-muted-foreground">上传中，请稍候...</p>}
+              </div>
             </div>
           </PopoverContent>
         </Popover>

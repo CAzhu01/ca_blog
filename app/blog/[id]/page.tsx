@@ -36,10 +36,14 @@ async function BlogPostContent({ id }: { id: string }) {
   );
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ id:string }> }) {
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   return (
-    <div class="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
       <Link
         href="/blog"
         className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6"
