@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
-import { Github, Mail } from "lucide-react";
+import { Github, Mail, ArrowDown } from "lucide-react";
 
 export default function HomePage() {
   const projects = [
@@ -29,37 +29,44 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4">
       {/* Introduction Section */}
-      <section className="flex flex-col md:flex-row items-center justify-center text-center md:text-left mb-24 min-h-[60vh]">
-        <div className="md:mr-12 mb-8 md:mb-0">
-          <Avatar className="w-40 h-40 ring-4 ring-primary/20">
-            <AvatarImage src="/placeholder-user.jpg" alt="Your Name" />
-            <AvatarFallback>ME</AvatarFallback>
-          </Avatar>
-        </div>
-        <div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Hello, I'm CAZhu</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mb-8">
-            I am a student learning Web3, focusing on smart contract development with Hardhat and building front-end applications with React and Next.js. I am passionate about creating clean, user-friendly interfaces and exploring practical Web3 solutions.
-          </p>
-          <div className="flex justify-center md:justify-start gap-4">
-            <Link href="/blog">
-              <Button size="lg">My Blog</Button>
-            </Link>
-            <Link href="#contact">
-              <Button variant="outline" size="lg">
-                Contact Me
-              </Button>
-            </Link>
+      <section id="intro" className="min-h-screen flex flex-col items-center justify-center text-center relative">
+        <div className="flex flex-col md:flex-row items-center justify-center text-center md:text-left">
+          <div className="md:mr-12 mb-8 md:mb-0">
+            <Avatar className="w-40 h-40 ring-4 ring-primary/20">
+              <AvatarImage src="/placeholder-user.jpg" alt="Your Name" />
+              <AvatarFallback>ME</AvatarFallback>
+            </Avatar>
           </div>
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Hello, I'm CAZhu</h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mb-8">
+              I am a student learning Web3, focusing on smart contract development with Hardhat and building front-end applications with React and Next.js. I am passionate about creating clean, user-friendly interfaces and exploring practical Web3 solutions.
+            </p>
+            <div className="flex justify-center md:justify-start gap-4">
+              <Link href="/blog">
+                <Button size="lg">My Blog</Button>
+              </Link>
+              <Link href="#contact">
+                <Button variant="outline" size="lg">
+                  Contact Me
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div className="absolute bottom-12 animate-bounce">
+          <Link href="#projects">
+            <ArrowDown className="w-8 h-8 text-muted-foreground" />
+          </Link>
         </div>
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="mb-24">
+      <section id="projects" className="min-h-screen flex flex-col items-center justify-center py-20">
         <h2 className="text-3xl font-bold text-center mb-12">My Projects</h2>
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-2 w-full max-w-4xl">
           {projects.map((project, index) => (
             <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
@@ -79,12 +86,12 @@ export default function HomePage() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="text-center">
+      <section id="contact" className="min-h-screen flex flex-col items-center justify-center text-center">
         <h2 className="text-3xl font-bold mb-8">Contact Me</h2>
-        <p className="text-lg text-muted-foreground mb-8">
+        <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
           Feel free to reach out. I'm always open to connecting and collaborating.
         </p>
-        <div className="flex justify-center items-center gap-8">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-8">
           <Link href="mailto:your-email@example.com" className="flex items-center gap-2 text-lg hover:text-primary transition-colors">
             <Mail className="w-6 h-6" />
             <span>your-email@example.com</span>
