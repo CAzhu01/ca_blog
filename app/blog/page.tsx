@@ -65,9 +65,7 @@ export default function BlogListPage({
       <section className="mb-12 text-center">
         <h1 className="text-4xl font-bold mb-4">Blog</h1>
         <p className="text-xl text-muted-foreground">
-          {query
-            ? `Showing results for "${query}"`
-            : "Check out my latest posts"}
+          {query ? `Showing results for "${query}"` : "My life and notes"}
         </p>
       </section>
 
