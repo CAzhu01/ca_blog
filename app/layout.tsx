@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "CA Blog",
   description: "record my life",
   generator: "v0.dev",
+  icons: {
+    icon: "/zuoweimen.jpg",
+  },
 };
 
 export default function RootLayout({
