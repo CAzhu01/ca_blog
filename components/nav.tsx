@@ -44,12 +44,6 @@ export function Nav() {
           >
             Blog
           </Link>
-          <Link
-            href="/about"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            About
-          </Link>
         </div>
 
         <div className="flex items-center gap-4">
@@ -127,13 +121,7 @@ export function Nav() {
                 >
                   Blog
                 </Link>
-                <Link
-                  href="/about"
-                  onClick={() => setIsOpen(false)}
-                  className="text-lg"
-                >
-                  About
-                </Link>
+
                 {user ? (
                   <>
                     <Link

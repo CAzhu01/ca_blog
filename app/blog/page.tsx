@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import type { Post } from "@/types";
 
 export const revalidate = 60; // Revalidate every minute
 
@@ -25,18 +24,16 @@ async function PostsList() {
   if (posts.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground mb-4">
-          暂时还没有公开的文章。
-        </p>
+        <p className="text-muted-foreground mb-4">No Blog here</p>
         <Link href="/blog/create">
-          <Button>创建第一篇文章</Button>
+          <Button>Create your first blog</Button>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="flex flex-col gap-6 max-w-3xl mx-auto">
       {posts.map((post) => (
         <BlogPostCard key={post.id} post={post as any} />
       ))}
@@ -49,9 +46,9 @@ export default function BlogListPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Static content - loads instantly */}
       <section className="mb-12 text-center">
-        <h1 className="text-4xl font-bold mb-4">博客文章</h1>
+        <h1 className="text-4xl font-bold mb-4">Blog List</h1>
         <p className="text-xl text-muted-foreground">
-          在这里查看我所有的笔记和文章。
+          Check out my latest posts
         </p>
       </section>
 

@@ -44,7 +44,7 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
         className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
-        返回博客列表
+        Blog list
       </Link>
 
       <Suspense fallback={<LoadingSpinner />}>
