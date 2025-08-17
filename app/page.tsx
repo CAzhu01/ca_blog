@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Github, Linkedin, Mail } from "lucide-react";
+import { Suspense } from "react";
 
 export default function HomePage() {
   return (
