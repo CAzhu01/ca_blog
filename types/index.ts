@@ -6,7 +6,6 @@ export interface Post {
   slug: string;
   content: string;
   excerpt: string | null;
-  author_id: string;
   published: boolean;
   is_public: boolean;
   created_at: string;
