@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,8 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 import { RichTextEditor } from "@/components/rich-text-editor";
 import type { Post } from "@/types";
 
-export default function EditBlogPost({ params }: { params: { id: string } }) {
+export default function EditBlogPost({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +42,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
         const { data: postData, error } = await supabase
           .from("posts")
           .select("title, content")
-          .eq("id", params.id)
+          .eq("id", id)
           .single();
 
         if (error) throw error;
@@ -61,7 +62,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
     };
 
     fetchPost();
-  }, [params.id, user, router, toast]);
+  }, [id, user, router, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,12 +78,12 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
       const { error } = await supabase
         .from("posts")
         .update({ title, content, updated_at: new Date().toISOString() })
-        .eq("id", params.id);
+        .eq("id", id);
 
       if (error) throw error;
 
       toast({ title: "文章已更新" });
-      router.push(`/blog/${params.id}`);
+      router.push(`/blog/${id}`);
     } catch (error: any) {
       toast({ title: "更新失败", description: error.message, variant: "destructive" });
     } finally {
@@ -126,7 +127,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Link href={`/blog/${params.id}`}>
+            <Link href={`/blog/${id}`}>
               <Button variant="outline" disabled={isSubmitting}>取消</Button>
             </Link>
             <Button type="submit" disabled={isSubmitting}>
