@@ -3,6 +3,7 @@ import { Nav } from "@/components/nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/components/auth-provider";
 import "@/app/globals.css";
+import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -34,6 +35,7 @@ export default function RootLayout({
                   © {new Date().getFullYear()} CA Blog.
                 </div>
               </footer>
+              <Toaster />
             </div>
           </AuthProvider>
         </ThemeProvider>
