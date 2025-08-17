@@ -57,6 +57,7 @@ export default function Dashboard() {
         const { data, error } = await supabase
           .from("posts")
           .select("*")
+          .eq("author_id", user.id)
           .order("created_at", { ascending: false });
 
         if (error) {

@@ -61,7 +61,15 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
           throw postError;
         }
 
-        // 已删除作者字段，跳过作者权限校验。建议改为数据库行级策略控制权限。
+        if (postData.author_id !== user.id) {
+          toast({
+            title: "无权限",
+            description: "您没有权限编辑此文章",
+            variant: "destructive",
+          });
+          router.push("/dashboard");
+          return;
+        }
 
         setPost(postData as any);
         setTitle(postData.title as string);

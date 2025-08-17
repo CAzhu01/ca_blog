@@ -28,8 +28,29 @@ async function getPosts() {
     return [];
   }
 
-  // 由于已删除 author 相关字段，这里直接返回 posts
-  return posts as Post[];
+  // 获取所有作者的用户资料
+  const authorIds = [...new Set(posts.map((post) => post.author_id))];
+  const { data: profiles, error: profilesError } = await supabase
+    .from("user_profiles")
+    .select("*")
+    .in("id", authorIds);
+
+  if (profilesError) {
+    console.error("Error fetching user profiles:", profilesError);
+    // 即使获取用户资料失败，我们仍然返回文章
+    return posts as Post[];
+  }
+
+  // 将用户资料与文章关联
+  const postsWithAuthors = posts.map((post) => {
+    const author = profiles?.find((profile) => profile.id === post.author_id);
+    return {
+      ...post,
+      author: author || null,
+    };
+  });
+
+  return postsWithAuthors as Post[];
 }
 
 export default async function Home() {
