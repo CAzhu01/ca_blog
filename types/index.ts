@@ -9,3 +9,9 @@ export interface Post {
   created_at: string;
   updated_at: string;
 }
+
+export interface User {
+  id: UUID;
+  name: string;
+  email: string;
+}

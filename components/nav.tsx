@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Menu } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,9 +21,17 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 export function Nav() {
   const { user, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
 
   // 添加调试日志
   console.log("Current user in Nav:", user);
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchQuery.trim() !== "") {
+      router.push(`/blog?q=${searchQuery}`);
+    }
+  };
 
   return (
     <header className="border-b">
@@ -53,6 +62,9 @@ export function Nav() {
               type="search"
               placeholder="搜索文章..."
               className="w-[200px] pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
             />
           </div>
 
