@@ -14,10 +14,10 @@ async function PostsList() {
   const { data: posts, error } = await supabase
     .from("posts")
     .select("*")
-    .eq("published", true)
     .order("created_at", { ascending: false });
 
   if (error) {
+    console.error("Supabase error fetching posts:", error.message);
     // This error will be caught by the nearest error.tsx boundary
     throw new Error("Failed to fetch posts.");
   }

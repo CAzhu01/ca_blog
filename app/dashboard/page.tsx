@@ -25,10 +25,10 @@ async function UserPostsList() {
     notFound();
   }
 
+  // In the simplified model, the dashboard shows all posts
   const { data: posts, error } = await supabase
     .from("posts")
     .select("*")
-    .eq("author_id", user.id)
     .order("created_at", { ascending: false });
 
   if (error) {

@@ -1,12 +1,9 @@
 "use client";
 
-import type React from "react";
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -16,22 +13,15 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { Checkbox } from "@/components/ui/checkbox";
 import { RichTextEditor } from "@/components/rich-text-editor";
 import type { Post } from "@/types";
-import { notFound } from "next/navigation";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function EditBlogPost({ params }: { params: { id: string } }) {
-  const [post, setPost] = useState<Post | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [published, setPublished] = useState(false);
-  const [visibility, setVisibility] = useState<"private" | "public">("private");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,37 +38,20 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
 
     const fetchPost = async () => {
       try {
-        // 获取文章
-        const { data: postData, error: postError } = await supabase
+        const { data: postData, error } = await supabase
           .from("posts")
-          .select("*")
+          .select("title, content")
           .eq("id", params.id)
           .single();
 
-        if (postError) {
-          throw postError;
-        }
+        if (error) throw error;
 
-        if (postData.author_id !== user.id) {
-          toast({
-            title: "无权限",
-            description: "您没有权限编辑此文章",
-            variant: "destructive",
-          });
-          router.push("/dashboard");
-          return;
-        }
-
-        setPost(postData as any);
-        setTitle(postData.title as string);
-        setContent(postData.content as string);
-        setExcerpt(postData.excerpt as string);
-        setPublished(postData.published as boolean);
-        setVisibility(postData.is_public ? "public" : "private");
+        setTitle(postData.title);
+        setContent(postData.content);
       } catch (error: any) {
         toast({
           title: "获取文章失败",
-          description: error.message || "发生了未知错误，请稍后再试",
+          description: "您可能没有权限或文章不存在。",
           variant: "destructive",
         });
         router.push("/dashboard");
@@ -93,76 +66,36 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user || !post) {
-      return;
-    }
-
     if (!title.trim() || !content.trim()) {
-      toast({
-        title: "表单不完整",
-        description: "请填写标题和内容",
-        variant: "destructive",
-      });
+      toast({ title: "表单不完整", description: "请填写标题和内容", variant: "destructive" });
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // 更新文章
-      const { error: updateError } = await supabase
+      const { error } = await supabase
         .from("posts")
-        .update({
-          title,
-          content,
-          excerpt: excerpt || null,
-          published,
-          is_public: visibility === "public",
-        })
-        .eq("id", post.id);
+        .update({ title, content, updated_at: new Date().toISOString() })
+        .eq("id", params.id);
 
-      if (updateError) {
-        throw updateError;
-      }
+      if (error) throw error;
 
-      
-
-      toast({
-        title: "文章已更新",
-        description: "您的文章已成功更新",
-      });
-
-      // 重定向到文章页面或仪表板
-      if (published) {
-        router.push(`/blog/${post.slug}`);
-      } else {
-        router.push("/dashboard");
-      }
+      toast({ title: "文章已更新" });
+      router.push(`/blog/${params.id}`);
     } catch (error: any) {
-      toast({
-        title: "更新失败",
-        description: error.message || "发生了未知错误，请稍后再试",
-        variant: "destructive",
-      });
+      toast({ title: "更新失败", description: error.message, variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  
-
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <p>加载中...</p>
-        </div>
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p>加载中...</p>
       </div>
     );
-  }
-
-  if (!post) {
-    return notFound();
   }
 
   return (
@@ -179,70 +112,22 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="输入文章标题"
                 required
                 disabled={isSubmitting}
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="excerpt">摘要 (可选)</Label>
-              <Textarea
-                id="excerpt"
-                value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
-                placeholder="输入文章摘要..."
-                rows={3}
-                disabled={isSubmitting}
-              />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="content">内容</Label>
               <RichTextEditor
                 content={content}
                 onChange={setContent}
-                placeholder="开始编写文章内容..."
                 disabled={isSubmitting}
               />
-            </div>
-
-            
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="published"
-                checked={published}
-                onCheckedChange={(checked) => setPublished(checked as boolean)}
-                disabled={isSubmitting}
-              />
-              <Label htmlFor="published">发布</Label>
-            </div>
-
-            <div className="space-y-2">
-              <Label>可见性</Label>
-              <RadioGroup
-                value={visibility}
-                onValueChange={(value) =>
-                  setVisibility(value as "private" | "public")
-                }
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="private" id="private" />
-                  <Label htmlFor="private">私有 - 仅登录用户可见</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="public" id="public" />
-                  <Label htmlFor="public">公开 - 所有人可见</Label>
-                </div>
-              </RadioGroup>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Link href="/dashboard">
-              <Button variant="outline" disabled={isSubmitting}>
-                取消
-              </Button>
+            <Link href={`/blog/${params.id}`}>
+              <Button variant="outline" disabled={isSubmitting}>取消</Button>
             </Link>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "保存中..." : "保存更改"}
