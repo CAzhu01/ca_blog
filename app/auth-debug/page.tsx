@@ -53,7 +53,7 @@ export default function AuthDebugPage() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "github",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `https://ca-blog-sage.vercel.app/auth/callback`,
           scopes: "read:user user:email",
         },
       });
