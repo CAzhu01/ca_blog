@@ -16,7 +16,7 @@ async function getPosts() {
     .eq("published", true)
     .eq("is_public", true)
     .order("created_at", { ascending: false })
-    .limit(6);
+    .range(0, 5);
 
   if (error) {
     console.error("Error fetching posts:", error);
@@ -60,21 +60,21 @@ export default async function Home() {
     <div className="container mx-auto px-4 py-8">
       <section className="mb-12">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">我的博客</h1>
+          <h1 className="text-4xl font-bold mb-4">CA Blog</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            分享关于 Web 开发、设计和技术的见解和教程
+            record my life
           </p>
         </div>
 
         <div className="flex justify-center mb-8">
           <Link href="/blog/create">
-            <Button size="lg">创建新文章</Button>
+            <Button size="lg">New Post</Button>
           </Link>
         </div>
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold mb-6">最新文章</h2>
+        <h2 className="text-2xl font-bold mb-6">Latest Posts</h2>
         {posts.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
@@ -83,9 +83,9 @@ export default async function Home() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">还没有发布的公开文章</p>
+            <p className="text-muted-foreground mb-4">No public posts yet</p>
             <Link href="/blog/create">
-              <Button>创建第一篇文章</Button>
+              <Button>Create your first post</Button>
             </Link>
           </div>
         )}
