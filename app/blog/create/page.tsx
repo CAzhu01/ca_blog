@@ -20,7 +20,6 @@ import { useToast } from "@/hooks/use-toast";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RichTextEditor } from "@/components/rich-text-editor";
-import type { Category } from "@/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function CreateBlogPost() {
@@ -30,41 +29,13 @@ export default function CreateBlogPost() {
   const [published, setPublished] = useState(false);
   const [visibility, setVisibility] = useState<"private" | "public">("private");
   const [isLoading, setIsLoading] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
 
   const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const supabase = getSupabaseClient();
 
-  React.useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("categories")
-          .select("*")
-          .order("name", { ascending: true });
-
-        if (error) {
-          throw error;
-        }
-
-        setCategories(data as any[]);
-      } catch (error: any) {
-        toast({
-          title: "获取分类失败",
-          description: error.message || "发生了未知错误，请稍后再试",
-          variant: "destructive",
-        });
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
-
-    fetchCategories();
-  }, [toast]);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,23 +101,7 @@ export default function CreateBlogPost() {
         throw error;
       }
 
-      const postId = data[0].id;
-
-      // 如果选择了分类，创建文章与分类的关联
-      if (selectedCategories.length > 0) {
-        const categoryRelations = selectedCategories.map((categoryId) => ({
-          post_id: postId,
-          category_id: categoryId,
-        }));
-
-        const { error: relationError } = await supabase
-          .from("post_categories")
-          .insert(categoryRelations);
-
-        if (relationError) {
-          throw relationError;
-        }
-      }
+      
 
       toast({
         title: "文章创建成功",
@@ -170,15 +125,7 @@ export default function CreateBlogPost() {
     }
   };
 
-  const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategories((prev) => {
-      if (prev.includes(categoryId)) {
-        return prev.filter((id) => id !== categoryId);
-      } else {
-        return [...prev, categoryId];
-      }
-    });
-  };
+  
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -222,38 +169,7 @@ export default function CreateBlogPost() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>分类</Label>
-              {loadingCategories ? (
-                <p className="text-sm text-muted-foreground">加载分类中...</p>
-              ) : categories.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {categories.map((category) => (
-                    <div
-                      key={category.id}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={`category-${category.id}`}
-                        checked={selectedCategories.includes(category.id)}
-                        onCheckedChange={() =>
-                          handleCategoryChange(category.id)
-                        }
-                        disabled={isLoading}
-                      />
-                      <Label
-                        htmlFor={`category-${category.id}`}
-                        className="cursor-pointer"
-                      >
-                        {category.name}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">暂无分类</p>
-              )}
-            </div>
+            
 
             <div className="flex items-center space-x-2">
               <Checkbox

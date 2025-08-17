@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RichTextEditor } from "@/components/rich-text-editor";
-import type { Post, Category } from "@/types";
+import type { Post } from "@/types";
 import { notFound } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
@@ -34,8 +34,6 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
   const [visibility, setVisibility] = useState<"private" | "public">("private");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const { user } = useAuth();
   const router = useRouter();
@@ -77,33 +75,6 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
         setExcerpt(postData.excerpt as string);
         setPublished(postData.published as boolean);
         setVisibility(postData.is_public ? "public" : "private");
-
-        // 获取分类
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from("categories")
-          .select("*")
-          .order("name", { ascending: true });
-
-        if (categoriesError) {
-          throw categoriesError;
-        }
-
-        setCategories(categoriesData as any[]);
-
-        // 获取文章的分类
-        const { data: postCategoriesData, error: postCategoriesError } =
-          await supabase
-            .from("post_categories")
-            .select("category_id")
-            .eq("post_id", params.id);
-
-        if (postCategoriesError) {
-          throw postCategoriesError;
-        }
-
-        setSelectedCategories(
-          postCategoriesData.map((pc) => pc.category_id as string)
-        );
       } catch (error: any) {
         toast({
           title: "获取文章失败",
@@ -154,31 +125,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
         throw updateError;
       }
 
-      // 删除现有的分类关联
-      const { error: deleteError } = await supabase
-        .from("post_categories")
-        .delete()
-        .eq("post_id", post.id);
-
-      if (deleteError) {
-        throw deleteError;
-      }
-
-      // 如果选择了分类，创建新的分类关联
-      if (selectedCategories.length > 0) {
-        const categoryRelations = selectedCategories.map((categoryId) => ({
-          post_id: post.id,
-          category_id: categoryId,
-        }));
-
-        const { error: insertError } = await supabase
-          .from("post_categories")
-          .insert(categoryRelations);
-
-        if (insertError) {
-          throw insertError;
-        }
-      }
+      
 
       toast({
         title: "文章已更新",
@@ -202,15 +149,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
     }
   };
 
-  const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategories((prev) => {
-      if (prev.includes(categoryId)) {
-        return prev.filter((id) => id !== categoryId);
-      } else {
-        return [...prev, categoryId];
-      }
-    });
-  };
+  
 
   if (isLoading) {
     return (
@@ -268,36 +207,7 @@ export default function EditBlogPost({ params }: { params: { id: string } }) {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>分类</Label>
-              {categories.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {categories.map((category) => (
-                    <div
-                      key={category.id}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={`category-${category.id}`}
-                        checked={selectedCategories.includes(category.id)}
-                        onCheckedChange={() =>
-                          handleCategoryChange(category.id)
-                        }
-                        disabled={isSubmitting}
-                      />
-                      <Label
-                        htmlFor={`category-${category.id}`}
-                        className="cursor-pointer"
-                      >
-                        {category.name}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">暂无分类</p>
-              )}
-            </div>
+            
 
             <div className="flex items-center space-x-2">
               <Checkbox

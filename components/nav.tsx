@@ -35,9 +35,6 @@ export function Nav() {
           <Link href="/" className="text-muted-foreground hover:text-foreground">
             首页
           </Link>
-          <Link href="/categories" className="text-muted-foreground hover:text-foreground">
-            分类
-          </Link>
           <Link href="/about" className="text-muted-foreground hover:text-foreground">
             关于
           </Link>
@@ -71,9 +68,6 @@ export function Nav() {
                 <DropdownMenuItem asChild>
                   <Link href="/blog/create">创建文章</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">个人资料</Link>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}>退出登录</DropdownMenuItem>
               </DropdownMenuContent>
@@ -96,9 +90,6 @@ export function Nav() {
                 <Link href="/" onClick={() => setIsOpen(false)} className="text-lg">
                   首页
                 </Link>
-                <Link href="/categories" onClick={() => setIsOpen(false)} className="text-lg">
-                  分类
-                </Link>
                 <Link href="/about" onClick={() => setIsOpen(false)} className="text-lg">
                   关于
                 </Link>
@@ -109,9 +100,6 @@ export function Nav() {
                     </Link>
                     <Link href="/blog/create" onClick={() => setIsOpen(false)} className="text-lg">
                       创建文章
-                    </Link>
-                    <Link href="/profile" onClick={() => setIsOpen(false)} className="text-lg">
-                      个人资料
                     </Link>
                     <Button
                       variant="outline"

@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import type { Post } from "@/types";
 import { formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
-import { CommentsSection } from "@/components/comments-section";
 import { EnhancedContent } from "@/components/enhanced-content";
 
 export const revalidate = 60; // 每分钟重新验证页面
@@ -97,8 +96,6 @@ export default async function BlogPost({
         </header>
 
         <EnhancedContent content={post.content} />
-
-        <CommentsSection postId={post.id} />
       </article>
     </div>
   );
