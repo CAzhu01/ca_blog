@@ -28,12 +28,15 @@ export function Nav() {
     <header className="border-b">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="text-xl font-bold">
-          博客系统
+          [你的名字]
         </Link>
 
         <div className="hidden md:flex items-center space-x-6">
           <Link href="/" className="text-muted-foreground hover:text-foreground">
-            首页
+            主页
+          </Link>
+          <Link href="/blog" className="text-muted-foreground hover:text-foreground">
+            博客
           </Link>
           <Link href="/about" className="text-muted-foreground hover:text-foreground">
             关于
@@ -88,7 +91,10 @@ export function Nav() {
             <SheetContent side="right">
               <div className="flex flex-col space-y-4 mt-8">
                 <Link href="/" onClick={() => setIsOpen(false)} className="text-lg">
-                  首页
+                  主页
+                </Link>
+                <Link href="/blog" onClick={() => setIsOpen(false)} className="text-lg">
+                  博客
                 </Link>
                 <Link href="/about" onClick={() => setIsOpen(false)} className="text-lg">
                   关于
