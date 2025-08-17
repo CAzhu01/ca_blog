@@ -58,28 +58,8 @@ async function getPostsByCategory(categoryId: string) {
     return [];
   }
 
-  // 获取作者信息
-  const authorIds = [...new Set(posts.map((post) => post.author_id))];
-  const { data: profiles, error: profilesError } = await supabase
-    .from("user_profiles")
-    .select("*")
-    .in("id", authorIds);
-
-  if (profilesError) {
-    console.error("Error fetching user profiles:", profilesError);
-    return posts as Post[];
-  }
-
-  // 合并文章和作者信息
-  const postsWithAuthors = posts.map((post) => {
-    const author = profiles?.find((profile) => profile.id === post.author_id);
-    return {
-      ...post,
-      author: author || null,
-    };
-  });
-
-  return postsWithAuthors as Post[];
+  // 已移除作者字段，直接返回文章
+  return posts as Post[];
 }
 
 export default async function CategoryPage({

@@ -110,7 +110,7 @@ export default function CreateBlogPost() {
         "-" +
         Date.now().toString().slice(-6);
 
-      // 创建文章
+      // 创建文章（已删除作者字段）
       const { data, error } = await supabase
         .from("posts")
         .insert([
@@ -118,7 +118,6 @@ export default function CreateBlogPost() {
             title,
             content,
             excerpt: excerpt || null,
-            author_id: user.id,
             published,
             slug,
             is_public: visibility === "public",
