@@ -63,10 +63,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithGitHub = async () => {
+    // 完全动态检测当前域名，不依赖环境变量
+    let redirectTo;
+
+    if (typeof window !== "undefined") {
+      const currentOrigin = window.location.origin;
+
+      // 总是使用当前访问的域名作为回调地址
+      redirectTo = `${currentOrigin}/auth/callback`;
+
+      console.log("Current origin:", currentOrigin);
+      console.log("GitHub OAuth redirect URL:", redirectTo);
+    } else {
+      // 服务端渲染时的回退（不应该在客户端组件中发生）
+      redirectTo = "http://localhost:3000/auth/callback";
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo,
         scopes: "read:user user:email", // 明确请求用户邮箱权限
       },
     });

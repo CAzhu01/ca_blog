@@ -50,10 +50,15 @@ export default function AuthDebugPage() {
 
   const handleGitHubLogin = async () => {
     try {
+      // 使用和主应用相同的动态重定向逻辑
+      const redirectTo = `${window.location.origin}/auth/callback`;
+
+      console.log("Debug login redirect URL:", redirectTo);
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "github",
         options: {
-          redirectTo: `https://ca-blog-sage.vercel.app/auth/callback`,
+          redirectTo,
           scopes: "read:user user:email",
         },
       });
@@ -62,6 +67,7 @@ export default function AuthDebugPage() {
 
       // 登录成功，用户将被重定向
     } catch (error: any) {
+      console.error("GitHub login error:", error);
       toast({
         title: "登录失败",
         description: error.message || "GitHub 登录过程中发生错误",
