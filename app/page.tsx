@@ -3,6 +3,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Github, Mail, ArrowDown } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { BlogPostCard } from "@/components/blog-post-card";
+import { Suspense } from "react";
+import { LoadingSpinner } from "@/components/loading-spinner";
+
+async function RecentBlogs() {
+  const supabase = await createClient();
+  const { data: posts, error } = await supabase
+    .from("posts")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(4);
+
+  if (error) {
+    console.error("Error fetching recent posts:", error);
+    return <p>Error loading posts.</p>;
+  }
+
+  if (!posts || posts.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground">
+        No blog posts yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-8 md:grid-cols-2 w-full max-w-4xl">
+      {posts.map((post) => (
+        <BlogPostCard key={post.id} post={post as any} />
+      ))}
+    </div>
+  );
+}
 
 export default function HomePage() {
   const projects = [
@@ -68,8 +102,24 @@ export default function HomePage() {
           </div>
         </div>
         <div className="absolute bottom-12 animate-bounce">
-          <Link href="#projects">
+          <Link href="#recent-blogs">
             <ArrowDown className="w-8 h-8 text-muted-foreground" />
+          </Link>
+        </div>
+      </section>
+
+      {/* Recent Blogs Section */}
+      <section
+        id="recent-blogs"
+        className="min-h-screen flex flex-col items-center justify-center py-20"
+      >
+        <h2 className="text-3xl font-bold text-center mb-12">Recent Blogs</h2>
+        <Suspense fallback={<LoadingSpinner />}>
+          <RecentBlogs />
+        </Suspense>
+        <div className="mt-12">
+          <Link href="/blog">
+            <Button variant="outline">View All Blogs</Button>
           </Link>
         </div>
       </section>
