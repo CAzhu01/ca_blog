@@ -34,7 +34,7 @@ export function Nav() {
   };
 
   return (
-    <header className="border-b">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="text-xl font-bold">
           CA Blog
@@ -52,6 +52,18 @@ export function Nav() {
             className="text-muted-foreground hover:text-foreground"
           >
             Blog
+          </Link>
+          <Link
+            href="/projects"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Projects
+          </Link>
+          <Link
+            href="/#contact"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Contact Me
           </Link>
         </div>
 
@@ -132,6 +144,20 @@ export function Nav() {
                   className="text-lg"
                 >
                   Blog
+                </Link>
+                <Link
+                  href="/projects"
+                  onClick={() => setIsOpen(false)}
+                  className="text-lg"
+                >
+                  Projects
+                </Link>
+                <Link
+                  href="/#contact"
+                  onClick={() => setIsOpen(false)}
+                  className="text-lg"
+                >
+                  Contact Me
                 </Link>
 
                 {user ? (

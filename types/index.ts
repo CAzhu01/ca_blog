@@ -10,6 +10,12 @@ export interface Post {
   updated_at: string;
 }
 
+export interface Project {
+  id: UUID;
+  title: string;
+  content: string;
+}
+
 export interface User {
   id: UUID;
   name: string;

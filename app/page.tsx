@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
-import { Github, Mail, ArrowDown } from "lucide-react";
+import { Github, Mail, ArrowDown, Edit } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { BlogPostCard } from "@/components/blog-post-card";
 import { Suspense } from "react";
@@ -38,33 +38,52 @@ async function RecentBlogs() {
   );
 }
 
-export default function HomePage() {
-  const projects = [
-    {
-      title: "项目一",
-      description:
-        "这是一个项目的简短描述。介绍这个项目是做什么的，以及它解决了什么问题。",
-      link: "#",
-    },
-    {
-      title: "项目二",
-      description:
-        "这是另一个项目的简短描述。可以突出你在这个项目中使用的技术。",
-      link: "#",
-    },
-    {
-      title: "项目三",
-      description: "这是第三个项目的简短描述。分享项目的亮点和挑战。",
-      link: "#",
-    },
-    {
-      title: "项目四",
-      description:
-        "这是第四个项目的简短描述。可以是你的个人作品或参与的开源项目。",
-      link: "#",
-    },
-  ];
+async function RecentProjects() {
+  const supabase = await createClient();
+  const { data: projects, error } = await supabase
+    .from("projects")
+    .select("*")
+    .order("id", { ascending: true })
+    .limit(4);
 
+  if (error) {
+    console.error("Error fetching recent projects:", error);
+    return <p>Error loading projects.</p>;
+  }
+
+  if (!projects || projects.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground">No projects yet.</div>
+    );
+  }
+
+  return (
+    <div className="grid gap-8 md:grid-cols-2 w-full max-w-4xl">
+      {projects.map((project) => (
+        <Card
+          key={project.id}
+          className="hover:shadow-lg transition-shadow duration-300"
+        >
+          <CardHeader>
+            <CardTitle>{project.title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-6 min-h-[60px]">
+              {project.content}
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" asChild>
+                <Link href={`/projects/${project.id}`}>查看详情</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+export default function HomePage() {
   return (
     <div className="container mx-auto px-4">
       {/* Introduction Section */}
@@ -130,26 +149,9 @@ export default function HomePage() {
         className="min-h-screen flex flex-col items-center justify-center py-20"
       >
         <h2 className="text-3xl font-bold text-center mb-12">My Projects</h2>
-        <div className="grid gap-8 md:grid-cols-2 w-full max-w-4xl">
-          {projects.map((project, index) => (
-            <Card
-              key={index}
-              className="hover:shadow-lg transition-shadow duration-300"
-            >
-              <CardHeader>
-                <CardTitle>{project.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-6 min-h-[60px]">
-                  {project.description}
-                </p>
-                <Button variant="outline" asChild>
-                  <Link href={project.link}>查看详情</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Suspense fallback={<LoadingSpinner />}>
+          <RecentProjects />
+        </Suspense>
       </section>
 
       {/* Contact Section */}
